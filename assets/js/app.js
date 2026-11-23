@@ -223,7 +223,9 @@
   var LAST_SEATING = 1.5;     /* hours before close */
 
   var Store = {
-    mode: "local", db: null, user: null,
+    mode: "local", db: null, user: null, ready: null,
+    /* resolve the backend once; everything else waits on this promise */
+    start() { return (this.ready = this.ready || this.init()); },
     async init() {
       if (window.claude && claude.use) {
         try {
@@ -239,12 +241,16 @@
       this.mode = "local";
       return this.mode;
     },
+    seatsOf(doc) {
+      if (!doc) return {};
+      var d = typeof doc.data === "function" ? doc.data() : (doc.data || doc);
+      return (d && d.seats) || {};
+    },
     async taken(dateKey) {
+      await this.start();
       if (this.mode === "db") {
-        try {
-          var doc = await this.db.doc("slots/" + dateKey).get();
-          return (doc && doc.data && doc.data.seats) || {};
-        } catch (e) { return {}; }
+        try { return this.seatsOf(await this.db.doc("slots/" + dateKey).get()); }
+        catch (e) { return {}; }
       }
       if (this.mode === "api") {
         try {
@@ -256,14 +262,16 @@
       return (this.readLocal().seats || {})[dateKey] || {};
     },
     async book(b) {
+      await this.start();
       if (this.mode === "db") {
-        var id = b.ref;
-        await this.db.collection("bookings").doc(id).set(b);
-        var key = b.date, ref = this.db.doc("slots/" + key);
-        var cur = {};
-        try { var d = await ref.get(); cur = (d && d.data && d.data.seats) || {}; } catch (e) {}
+        var ref = this.db.doc("slots/" + b.date), cur = {};
+        try { cur = this.seatsOf(await ref.get()); } catch (e) {}
+        if ((cur[b.time] || 0) + b.party > CAPACITY) {
+          throw new Error("only " + Math.max(0, CAPACITY - (cur[b.time] || 0)) + " seats left at " + b.time);
+        }
+        await this.db.collection("bookings").doc(b.ref).set(b);
         cur[b.time] = (cur[b.time] || 0) + b.party;
-        await ref.set({ seats: cur, date: key });
+        await ref.set({ seats: cur, date: b.date });
         return b;
       }
       if (this.mode === "api") {
@@ -275,6 +283,8 @@
       }
       var s = this.readLocal();
       s.list = s.list || []; s.seats = s.seats || {};
+      var held = ((s.seats[b.date] || {})[b.time] || 0);
+      if (held + b.party > CAPACITY) throw new Error("only " + Math.max(0, CAPACITY - held) + " seats left at " + b.time);
       s.list.push(b);
       s.seats[b.date] = s.seats[b.date] || {};
       s.seats[b.date][b.time] = (s.seats[b.date][b.time] || 0) + b.party;
@@ -462,13 +472,15 @@
 
     var again = $("#bookAgain");
     if (again) again.addEventListener("click", function () {
-      S.time = null; if (form) form.reset();
+      S.time = null; S.date = null;
+      if (form) form.reset();
+      sec.querySelectorAll(".datebtn.is-on").forEach(function (b) { b.classList.remove("is-on"); });
       sec.querySelectorAll(".field.has-err").forEach(function (f) { f.classList.remove("has-err"); });
       show(0);
     });
 
     /* storage mode, shown plainly */
-    Store.init().then(function (mode) {
+    Store.start().then(function (mode) {
       if (!status) return;
       if (mode === "db") { status.textContent = "Connected · bookings reach the cafe"; status.className = "book__status is-live"; }
       else if (mode === "api") { status.textContent = "Connected to the local booking service"; status.className = "book__status is-live"; }
