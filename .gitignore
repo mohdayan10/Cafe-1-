@@ -1,0 +1,9 @@
+# runtime reservations database
+bookings.db
+
+# build output for the claude.ai artifact (generated from index.html)
+artifact.html
+
+__pycache__/
+*.pyc
+.DS_Store

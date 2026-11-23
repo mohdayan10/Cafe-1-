@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>lightHouse Speciality Coffee</title>
+<meta name="description" content="lightHouse* — speciality coffee, wholesome bakes and an all-day menu, served in a quiet room full of walnut and warm light.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Jost:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="ast" viewBox="-50 -50 100 100">
+    <g>
+      <path d="M0-46Q8-16 0 0Q-8-16 0-46Z"/>
+      <path d="M0-46Q8-16 0 0Q-8-16 0-46Z" transform="rotate(60)"/>
+      <path d="M0-46Q8-16 0 0Q-8-16 0-46Z" transform="rotate(120)"/>
+      <path d="M0-46Q8-16 0 0Q-8-16 0-46Z" transform="rotate(180)"/>
+      <path d="M0-46Q8-16 0 0Q-8-16 0-46Z" transform="rotate(240)"/>
+      <path d="M0-46Q8-16 0 0Q-8-16 0-46Z" transform="rotate(300)"/>
+    </g>
+  </symbol>
+  <symbol id="leaf" viewBox="-22 -108 44 108">
+    <path d="M0 0C20-32 20-78 0-106C-20-78-20-32 0 0Z" fill="var(--s-leaf)"/>
+    <path d="M0 0V-96" stroke="var(--s-wall)" stroke-width="2.4" opacity=".45" fill="none"/>
+  </symbol>
+</svg>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+<canvas id="dust" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div id="progress" aria-hidden="true"></div>
+<script>
+/* boot curtain is injected by script, so a no-JS page is never stuck behind it */
+(function(){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var b=document.createElement("div"); b.id="boot"; b.setAttribute("aria-hidden","true");
+  b.innerHTML='<div class="bootbeam"></div><div class="bootinner">'+
+    '<p class="bootmark">lightHouse<svg class="ast" viewBox="-50 -50 100 100"><use href="#ast"></use></svg></p>'+
+    '<div class="bootbar"><i></i></div><p class="bootnum">000</p></div>';
+  document.body.appendChild(b);
+  setTimeout(function(){ if(b.parentNode) b.parentNode.removeChild(b); }, 4200);
+})();
+</script>
+<div class="cursor" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"><span class="dot"><svg><use href="#ast"></use></svg></span></div>
+
+<header class="nav">
+  <a class="nav__mark" href="#top" aria-label="lightHouse, speciality coffee">lightHouse<svg class="ast" aria-hidden="true"><use href="#ast"></use></svg></a>
+  <nav class="nav__links" aria-label="Sections">
+    <a href="#room"><span>The Room</span><span>The Room</span></a>
+    <a href="#pour"><span>Brew</span><span>Brew</span></a>
+    <a href="#menu"><span>Menu</span><span>Menu</span></a>
+    <a href="#visit"><span>Visit</span><span>Visit</span></a>
+    <a href="#book"><span>Book</span><span>Book</span></a>
+  </nav>
+  <button class="lamp" id="lamp" type="button" aria-pressed="false">
+    <span class="lamp__bulb" aria-hidden="true"></span><span class="lamp__label">Evening</span>
+  </button>
+</header>
+
+<main>
+
+  <section class="hero wrap" id="top">
+    <div class="hero__beam" aria-hidden="true"></div>
+    <div class="hero__grid">
+      <div>
+        <p class="eyebrow">Speciality Coffee<svg class="ast" aria-hidden="true"><use href="#ast"></use></svg>All Day Menu<svg class="ast" aria-hidden="true"><use href="#ast"></use></svg>Wholesome Bakes</p>
+        <h1 class="wordmark">
+          <span class="ln"><span>light</span></span><span class="ln"><span>House</span></span><svg class="ast ast--big" aria-hidden="true"><use href="#ast"></use></svg>
+        </h1>
+        <p class="hero__lede">A small room with a tall window, walnut chairs and a lamp that stays on past dark. We roast light, pour slow, and <em>keep the music low enough to talk over.</em></p>
+      </div>
+      <figure class="hero__shot">
+        <div class="frame"><svg class="art art--front" viewBox="0 0 600 680" role="img" aria-label="Illustration of a cafe front: a slatted walnut sign over a glass door, an arched niche, potted plants and a monochrome tiled forecourt.">
+  <defs>
+    <pattern id="tileP" width="120" height="120" patternUnits="userSpaceOnUse">
+      <rect width="120" height="120" fill="var(--s-floor-a)"/>
+      <g fill="none" stroke="var(--s-floor-b)" stroke-width="7">
+        <circle cx="30" cy="30" r="17"/><rect x="73" y="13" width="34" height="34"/>
+        <rect x="13" y="73" width="34" height="34"/><circle cx="90" cy="90" r="17"/>
+      </g>
+    </pattern>
+    <linearGradient id="doorG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--s-glass)"/><stop offset=".62" stop-color="var(--s-glass)"/>
+      <stop offset="1" stop-color="var(--s-glassglow)"/>
+    </linearGradient>
+    <radialGradient id="sconceG"><stop offset="0" stop-color="var(--s-glow)" stop-opacity=".85"/><stop offset="1" stop-color="var(--s-glow)" stop-opacity="0"/></radialGradient>
+  </defs>
+
+  <rect width="600" height="680" fill="var(--s-wall)"/>
+  <rect y="430" width="600" height="18" fill="var(--s-wall-2)"/>
+  <rect y="448" width="600" height="232" fill="url(#tileP)"/>
+
+  <!-- sign -->
+  <rect x="48" y="44" width="504" height="152" fill="var(--s-sign)"/>
+  <g stroke="var(--s-slat)" stroke-width="2" opacity=".55">
+    <path d="M58 44V196M70 44V196M82 44V196M94 44V196M106 44V196M118 44V196M130 44V196M142 44V196M154 44V196M166 44V196M178 44V196M190 44V196M202 44V196M214 44V196M226 44V196M238 44V196M250 44V196M262 44V196M274 44V196M286 44V196M298 44V196M310 44V196M322 44V196M334 44V196M346 44V196M358 44V196M370 44V196M382 44V196M394 44V196M406 44V196M418 44V196M430 44V196M442 44V196M454 44V196M466 44V196M478 44V196M490 44V196M502 44V196M514 44V196M526 44V196M538 44V196"/>
+  </g>
+  <text class="sign-word" x="300" y="122" text-anchor="middle">lightHouse</text>
+  <use class="sign-ast" href="#ast" x="430" y="68" width="26" height="26"/>
+  <text class="sign-sub" x="300" y="160" text-anchor="middle">SPECIALITY COFFEE</text>
+  <rect x="48" y="196" width="504" height="26" fill="var(--s-wall-2)"/>
+
+  <!-- door -->
+  <rect x="212" y="252" width="176" height="196" fill="url(#doorG)"/>
+  <g class="decals" text-anchor="middle">
+    <text x="300" y="296">SPECIALITY COFFEE</text>
+    <text x="300" y="330">ALL DAY MENU</text>
+    <text x="300" y="364">WHOLESOME BAKES</text>
+  </g>
+  <g fill="none" stroke="var(--s-ink)" stroke-width="5">
+    <rect x="212" y="252" width="176" height="196"/><path d="M300 252v196"/>
+  </g>
+  <rect x="246" y="430" width="108" height="10" fill="var(--s-ink)" opacity=".75"/>
+
+  <!-- arch niche + sconce -->
+  <path d="M432 404V330a34 34 0 0 1 68 0v74z" fill="var(--s-wall-2)" stroke="var(--s-ink)" stroke-width="2" opacity=".9"/>
+  <circle class="pulse" cx="406" cy="306" r="46" fill="url(#sconceG)"/>
+  <rect x="402" y="288" width="8" height="18" fill="var(--s-wood)"/>
+  <circle cx="406" cy="310" r="9" fill="var(--s-glow)"/>
+
+  <!-- plants -->
+  <g class="plant">
+    <g class="sway"><use href="#leaf" x="78" y="300" width="46" height="112"/></g>
+    <g class="sway sway--b"><use href="#leaf" x="110" y="290" width="40" height="122"/></g>
+    <g class="sway sway--c"><use href="#leaf" x="58" y="330" width="38" height="92"/></g>
+    <path d="M74 412h66l-9 50H83z" fill="var(--s-pot)"/>
+  </g>
+  <g class="plant">
+    <g class="sway sway--b"><use href="#leaf" x="470" y="288" width="48" height="124"/></g>
+    <g class="sway"><use href="#leaf" x="504" y="306" width="40" height="106"/></g>
+    <g class="sway sway--c"><use href="#leaf" x="448" y="322" width="36" height="90"/></g>
+    <path d="M466 412h74l-10 54h-54z" fill="var(--s-clay)"/>
+    <rect x="462" y="404" width="82" height="12" rx="2" fill="var(--s-clay)"/>
+  </g>
+</svg></div>
+        <figcaption class="hero__cap"><span>No. 1 — the doorway</span><span class="live">Lamp is on</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="hero__foot">
+      <dl>
+        <div><dt>Today</dt><dd>8:00 — 23:00</dd></div>
+        <div><dt>Brew bar</dt><dd>Four origins</dd></div>
+        <div><dt>Kitchen</dt><dd>Until 22:15</dd></div>
+      </dl>
+      <span class="scrollcue">Scroll <i aria-hidden="true"></i></span>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Speciality Coffee <svg class="ast"><use href="#ast"></use></svg> Wholesome Bakes <svg class="ast"><use href="#ast"></use></svg> All Day Menu <svg class="ast"><use href="#ast"></use></svg> Slow Mornings <svg class="ast"><use href="#ast"></use></svg></span>
+      <span>Speciality Coffee <svg class="ast"><use href="#ast"></use></svg> Wholesome Bakes <svg class="ast"><use href="#ast"></use></svg> All Day Menu <svg class="ast"><use href="#ast"></use></svg> Slow Mornings <svg class="ast"><use href="#ast"></use></svg></span>
+      <span>Speciality Coffee <svg class="ast"><use href="#ast"></use></svg> Wholesome Bakes <svg class="ast"><use href="#ast"></use></svg> All Day Menu <svg class="ast"><use href="#ast"></use></svg> Slow Mornings <svg class="ast"><use href="#ast"></use></svg></span>
+    </div>
+  </div>
+
+  <section class="band wrap" id="room">
+    <div class="two">
+      <h2 class="h2">
+        <span class="ln"><span>A light left on,</span></span>
+        <span class="ln"><span>and a chair</span></span>
+        <span class="ln"><span>kept for you.</span></span>
+      </h2>
+      <div class="prose">
+        <p class="lead" data-reveal>Lighthouses are built for one job: to be the thing you steer towards. Ours is a room, not a tower — but the idea holds.</p>
+        <p data-reveal="0.05">The floor is the first thing people notice. Hand-laid monochrome tile at the entrance, worn smooth where the door swings. Inside it gives way to warm stone, walnut tables, a green back wall and a window the plants have taken over.</p>
+        <p data-reveal="0.1">The coffee is <strong>single origin, roasted light</strong>, and changed when something better lands. Espresso goes through a two-group lever; filter is brewed to order on the bar. Everything in the kitchen is cooked the same morning — the <strong>mushroom toast</strong> is the one people come back for.</p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <figure class="shot shot--a">
+        <svg class="art art--room" preserveAspectRatio="xMidYMid slice" viewBox="0 0 760 530" role="img" aria-label="Illustration of the main room: a tall window with plants, walnut chairs around a round table, a green back wall, a floor lamp and a pink curved stool.">
+  <defs>
+    <radialGradient id="lampG"><stop offset="0" stop-color="var(--s-glow)" stop-opacity=".7"/><stop offset="1" stop-color="var(--s-glow)" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="760" height="530" fill="var(--s-wall)"/>
+  <rect x="596" y="52" width="164" height="330" fill="var(--s-green)"/>
+  <path d="M0 58h760v16H0z" fill="var(--s-wall-2)"/>
+  <rect y="382" width="760" height="148" fill="var(--s-stone)"/>
+
+  <!-- window -->
+  <rect x="48" y="96" width="196" height="186" fill="var(--s-sky)" stroke="var(--s-ink)" stroke-width="6"/>
+  <g>
+    <g class="sway"><use href="#leaf" x="78" y="150" width="52" height="128"/></g>
+    <g class="sway sway--b"><use href="#leaf" x="128" y="134" width="58" height="144"/></g>
+    <g class="sway sway--c"><use href="#leaf" x="178" y="164" width="46" height="114"/></g>
+  </g>
+  <rect x="44" y="278" width="204" height="12" fill="var(--s-ink)" opacity=".5"/>
+
+  <!-- framed print -->
+  <rect x="330" y="120" width="86" height="92" fill="var(--s-clay)" stroke="var(--s-ink)" stroke-width="5"/>
+  <circle cx="373" cy="162" r="18" fill="var(--s-wall)" opacity=".85"/>
+
+  <!-- floor lamp -->
+  <circle class="pulse" cx="486" cy="150" r="70" fill="url(#lampG)"/>
+  <path d="M462 120h48l10 46h-68z" fill="var(--s-wood-2)"/>
+  <rect x="482" y="166" width="8" height="216" fill="var(--s-wood)"/>
+  <rect x="462" y="378" width="48" height="8" rx="4" fill="var(--s-wood)"/>
+
+  <!-- sofa + table -->
+  <rect x="556" y="286" width="150" height="62" rx="12" fill="var(--s-green)"/>
+  <rect x="548" y="300" width="20" height="48" rx="10" fill="var(--s-green)"/>
+  <ellipse cx="470" cy="330" rx="76" ry="18" fill="var(--s-wood-2)"/>
+  <rect x="466" y="330" width="8" height="52" fill="var(--s-wood)"/>
+  <path d="M440 382h60l-16-10h-28z" fill="var(--s-wood)"/>
+  <g class="vase"><path d="M462 300h16l-4 24h-8z" fill="var(--s-clay)"/><circle cx="470" cy="294" r="9" fill="var(--s-glow)"/></g>
+
+  <!-- chairs -->
+  <g fill="none" stroke="var(--s-wood)" stroke-width="9" stroke-linecap="round">
+    <path d="M352 318a34 30 0 0 1 64 0"/><path d="M356 342h56M364 342l-8 44M404 342l8 44"/>
+    <path d="M556 318a34 30 0 0 1 64 0"/><path d="M560 342h56M568 342l-8 44M608 342l8 44"/>
+  </g>
+  <!-- pink squiggle stool -->
+  <path d="M268 334h54a16 16 0 0 1 0 32h-38a16 16 0 0 0 0 32h54" fill="none" stroke="var(--s-blush)" stroke-width="26" stroke-linecap="round"/>
+  <!-- sideboard -->
+  <rect x="24" y="300" width="150" height="86" fill="var(--s-wood)"/>
+  <rect x="24" y="300" width="150" height="14" fill="var(--s-wood-2)"/>
+  <g fill="none" stroke="var(--s-wall)" stroke-width="3" opacity=".5"><path d="M99 314v72M24 350h150"/></g>
+</svg>
+        <figcaption>The long room</figcaption>
+      </figure>
+      <figure class="shot shot--b">
+        <svg class="art art--corner" preserveAspectRatio="xMidYMid slice" viewBox="0 0 380 560" role="img" aria-label="Illustration of a quiet corner: a walnut sideboard with a small glowing mushroom lamp and a glass dispenser, a round table and chair by a window.">
+  <defs><radialGradient id="mushG"><stop offset="0" stop-color="var(--s-glow)" stop-opacity=".95"/><stop offset="1" stop-color="var(--s-glow)" stop-opacity="0"/></radialGradient></defs>
+  <rect width="380" height="560" fill="var(--s-wall)"/>
+  <path d="M0 30h380v14H0z" fill="var(--s-wall-2)"/>
+  <rect y="392" width="380" height="168" fill="var(--s-stone)"/>
+
+  <rect x="196" y="110" width="140" height="150" fill="var(--s-sky)" stroke="var(--s-ink)" stroke-width="6"/>
+  <g class="sway"><use href="#leaf" x="214" y="156" width="46" height="102"/></g>
+  <g class="sway sway--b"><use href="#leaf" x="262" y="146" width="50" height="112"/></g>
+
+  <rect x="40" y="128" width="78" height="96" fill="var(--s-clay)" stroke="var(--s-ink)" stroke-width="5"/>
+  <path d="M58 200l22-34 18 26 12-14v22z" fill="var(--s-wall)" opacity=".8"/>
+
+  <!-- sideboard -->
+  <rect x="28" y="258" width="186" height="132" fill="var(--s-wood)"/>
+  <rect x="24" y="248" width="194" height="14" rx="2" fill="var(--s-wood-2)"/>
+  <g fill="none" stroke="var(--s-wall)" stroke-width="3" opacity=".45"><path d="M121 262v128M28 300h186M28 344h186"/></g>
+  <rect x="44" y="306" width="10" height="32" fill="var(--s-clay)"/><rect x="58" y="306" width="8" height="32" fill="var(--s-green)"/>
+
+  <!-- mushroom lamp -->
+  <circle class="pulse" cx="74" cy="222" r="62" fill="url(#mushG)"/>
+  <path d="M44 232a30 24 0 0 1 60 0z" fill="var(--s-glow)"/>
+  <rect x="68" y="232" width="12" height="16" fill="var(--s-clay)"/>
+  <!-- dispenser -->
+  <rect x="150" y="196" width="46" height="52" rx="6" fill="none" stroke="var(--s-ink)" stroke-width="4" opacity=".55"/>
+  <rect x="154" y="214" width="38" height="30" rx="4" fill="var(--s-glassglow)" opacity=".5"/>
+
+  <!-- table + chair -->
+  <ellipse cx="258" cy="332" rx="62" ry="15" fill="var(--s-wood-2)"/>
+  <rect x="254" y="332" width="8" height="48" fill="var(--s-wood)"/>
+  <path d="M232 380h52l-14-8h-24z" fill="var(--s-wood)"/>
+  <g class="vase"><path d="M250 308h14l-3 20h-8z" fill="var(--s-glassglow)"/><circle cx="257" cy="302" r="8" fill="var(--s-glow)"/></g>
+  <g fill="none" stroke="var(--s-wood)" stroke-width="9" stroke-linecap="round">
+    <path d="M132 350a32 28 0 0 1 60 0"/><path d="M136 372h52M144 372l-8 42M180 372l8 42"/>
+  </g>
+</svg>
+        <figcaption>The lamp corner</figcaption>
+      </figure>
+    </div>
+  </section>
+
+
+  <section class="pour" id="pour">
+    <div class="pour__pin">
+      <div class="wrap pour__grid">
+        <div class="pour__copy">
+          <p class="eyebrow">Brew guide<svg class="ast" aria-hidden="true"><use href="#ast"></use></svg>V60, single origin</p>
+          <h2 class="h2">
+            <span class="ln"><span>Three hundred</span></span>
+            <span class="ln"><span>millilitres.</span></span>
+            <span class="ln"><span>Two forty-five.</span></span>
+          </h2>
+          <p class="pour__stage-label"><span id="stageText">Rinse the filter</span></p>
+          <dl class="recipe">
+            <div><dt>Dose</dt><dd><span id="cDose">0</span> g</dd></div>
+            <div><dt>Water</dt><dd><span id="cWater">0</span> ml</dd></div>
+            <div><dt>Temp</dt><dd><span id="cTemp">0</span>&#176;C</dd></div>
+            <div><dt>Clock</dt><dd><span id="cClock">0:00</span></dd></div>
+          </dl>
+          <p class="pour__hint">Scroll to brew</p>
+        </div>
+
+        <div class="pour__stage">
+          <canvas class="steam" id="steam" aria-hidden="true"></canvas>
+          <svg class="rig" viewBox="0 0 460 620" role="img" aria-label="Animated brew sequence: a gooseneck kettle pouring into a V60 dripper, coffee filling the carafe below, then a cup seen from above with latte art.">
+            <defs>
+              <linearGradient id="brewG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--s-crema)"/><stop offset=".35" stop-color="var(--s-coffee)"/><stop offset="1" stop-color="#1B0F08"/>
+              </linearGradient>
+              <radialGradient id="cremaG"><stop offset="0" stop-color="var(--s-crema)"/><stop offset="1" stop-color="var(--s-coffee)"/></radialGradient>
+              <clipPath id="carafeClip"><path d="M150 330h160v148a30 30 0 0 1-30 30h-100a30 30 0 0 1-30-30z"/></clipPath>
+            </defs>
+
+            <g id="rig">
+              <!-- kettle -->
+              <g id="kettle">
+                <path d="M40 92h98a16 16 0 0 1 16 16v54a24 24 0 0 1-24 24H48a24 24 0 0 1-24-24v-54a16 16 0 0 1 16-16z" fill="var(--s-steel)"/>
+                <path d="M34 92h110v10H34z" fill="var(--s-steel-2)"/>
+                <rect x="78" y="74" width="22" height="18" rx="5" fill="var(--s-steel-2)"/>
+                <path d="M24 108c-18 4-18 46 0 52" fill="none" stroke="var(--s-steel-2)" stroke-width="9" stroke-linecap="round"/>
+                <path d="M144 104c34 2 54 14 58 36" fill="none" stroke="var(--s-steel)" stroke-width="11" stroke-linecap="round"/>
+                <path d="M202 140v14" stroke="var(--s-steel)" stroke-width="11" stroke-linecap="round"/>
+              </g>
+              <!-- stream -->
+              <path id="stream" d="M202 158C204 186 206 200 208 226" fill="none" stroke="var(--s-water)" stroke-width="5" stroke-linecap="round"/>
+              <!-- dripper -->
+              <g id="dripper">
+                <ellipse cx="230" cy="232" rx="92" ry="20" fill="var(--s-dripper-2)"/>
+                <path d="M140 234 L200 316h60l60-82z" fill="var(--s-dripper)"/>
+                <g stroke="var(--s-dripper-2)" stroke-width="3" opacity=".7">
+                  <path d="M160 248l34 64M196 240l14 72M264 240l-14 72M300 248l-34 64"/>
+                </g>
+                <ellipse id="bed" cx="230" cy="236" rx="74" ry="14" fill="var(--s-coffee)"/>
+                <g id="bubbles" opacity="0">
+                  <circle cx="206" cy="232" r="5" fill="var(--s-crema)"/>
+                  <circle cx="238" cy="228" r="7" fill="var(--s-crema)"/>
+                  <circle cx="258" cy="236" r="4" fill="var(--s-crema)"/>
+                  <circle cx="218" cy="240" r="3.5" fill="var(--s-crema)"/>
+                </g>
+              </g>
+              <!-- drips -->
+              <g id="drips" opacity="0">
+                <ellipse class="drip" cx="230" cy="322" rx="4" ry="7" fill="var(--s-coffee)"/>
+                <ellipse class="drip drip--b" cx="230" cy="322" rx="3" ry="6" fill="var(--s-coffee)"/>
+                <ellipse class="drip drip--c" cx="230" cy="322" rx="3.4" ry="6.5" fill="var(--s-coffee)"/>
+              </g>
+              <!-- carafe -->
+              <g id="carafe">
+                <g clip-path="url(#carafeClip)">
+                  <rect id="brew" x="150" y="508" width="160" height="0" fill="url(#brewG)"/>
+                  <ellipse id="brewTop" cx="230" cy="508" rx="80" ry="9" fill="var(--s-crema)" opacity=".85"/>
+                </g>
+                <path d="M150 330h160v148a30 30 0 0 1-30 30h-100a30 30 0 0 1-30-30z" fill="none" stroke="var(--s-ink)" stroke-width="4" opacity=".55"/>
+                <rect x="142" y="322" width="176" height="12" rx="5" fill="var(--s-dripper-2)"/>
+                <path d="M310 352c34 6 34 70 0 76" fill="none" stroke="var(--s-ink)" stroke-width="7" opacity=".45"/>
+              </g>
+            </g>
+
+            <!-- the cup, from above -->
+            <g id="cup" opacity="0">
+              <circle cx="230" cy="310" r="152" fill="var(--s-plate)"/>
+              <circle cx="230" cy="310" r="132" fill="url(#cremaG)"/>
+              <circle cx="230" cy="310" r="132" fill="none" stroke="var(--s-ink)" stroke-width="3" opacity=".35"/>
+              <g id="rosetta" fill="none" stroke="var(--s-milk)" stroke-width="7" stroke-linecap="round">
+                <circle class="ros" cx="230" cy="236" r="26" stroke-width="10"/>
+                <path class="ros" d="M144 240 Q230 282 316 240"/>
+          <path class="ros" d="M150 258 Q230 300 310 258"/>
+          <path class="ros" d="M158 276 Q230 318 302 276"/>
+          <path class="ros" d="M166 294 Q230 336 294 294"/>
+          <path class="ros" d="M175 310 Q230 352 285 310"/>
+          <path class="ros" d="M184 326 Q230 368 276 326"/>
+          <path class="ros" d="M193 340 Q230 382 267 340"/>
+          <path class="ros" d="M202 352 Q230 394 258 352"/>
+          <path class="ros" d="M210 362 Q230 404 250 362"/>
+                <path class="ros" d="M230 250V392"/>
+                <path class="ros" d="M214 392q16 26 32 0"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="tiles" aria-hidden="true"></div>
+
+  <section class="menu" id="menu">
+    <div class="wrap">
+      <div class="menu__head">
+        <h2 class="h2"><span class="ln"><span>The menu</span></span></h2>
+        <p class="menu__meta"><span id="menuCount">36</span> items on today &#183; kitchen until 22:15 &#183; prices in &#8377;</p>
+      </div>
+
+      <div class="filters">
+        <div class="chips" id="catChips" role="group" aria-label="Menu sections"></div>
+        <div class="filters__right">
+          <div class="chips chips--diet" id="dietChips" role="group" aria-label="Dietary filters"></div>
+          <div class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5 21 21"/></svg>
+            <input type="search" id="menuSearch" placeholder="Search the menu" aria-label="Search the menu" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="menu__grid" id="menuGrid"></div>
+      <p class="menu__empty" id="menuEmpty" hidden>Nothing on the board matches that. <button type="button" id="clearFilters">Clear the filters</button></p>
+    </div>
+  </section>
+
+  <section class="band wrap">
+    <div class="two">
+      <figure class="shot" style="aspect-ratio:7/6" data-reveal>
+        <svg class="art art--table" preserveAspectRatio="xMidYMid slice" viewBox="0 0 560 500" role="img" aria-label="Illustration of a window seat: an iced latte and a plate of mushroom toast with salad on a walnut table, a bud vase with a yellow flower on the stone sill.">
+  <rect width="560" height="500" fill="var(--s-wall)"/>
+  <rect x="36" y="30" width="420" height="214" fill="var(--s-sky)" stroke="var(--s-ink)" stroke-width="7"/>
+  <g>
+    <g class="sway"><use href="#leaf" x="74" y="92" width="58" height="146"/></g>
+    <g class="sway sway--b"><use href="#leaf" x="150" y="64" width="66" height="176"/></g>
+    <g class="sway sway--c"><use href="#leaf" x="236" y="88" width="56" height="152"/></g>
+    <g class="sway"><use href="#leaf" x="316" y="110" width="50" height="130"/></g>
+    <g class="sway sway--b"><use href="#leaf" x="378" y="128" width="46" height="112"/></g>
+  </g>
+  <rect x="24" y="244" width="444" height="26" fill="var(--s-sill)"/>
+  <rect x="482" y="150" width="14" height="94" rx="7" fill="var(--s-brass)"/>
+  <rect x="470" y="236" width="38" height="12" rx="4" fill="var(--s-brass)"/>
+
+  <!-- bud vase -->
+  <g class="vase">
+    <path d="M206 244c-12-6-12-28 0-32h20c12 4 12 26 0 32z" fill="var(--s-glassglow)" opacity=".85" stroke="var(--s-ink)" stroke-width="2"/>
+    <path d="M216 212v-16" stroke="var(--s-leaf)" stroke-width="3"/>
+    <g class="bloom"><circle cx="216" cy="188" r="12" fill="var(--s-bloom)"/><circle cx="216" cy="188" r="5" fill="var(--s-clay)"/></g>
+  </g>
+
+  <!-- table -->
+  <path d="M0 330h560v170H0z" fill="var(--s-wood-2)"/>
+  <path d="M0 330h560v10H0z" fill="var(--s-wood)" opacity=".6"/>
+
+  <!-- plate -->
+  <ellipse cx="366" cy="396" rx="136" ry="54" fill="var(--s-plate)"/>
+  <ellipse cx="366" cy="392" rx="120" ry="46" fill="none" stroke="var(--s-ink)" stroke-width="2" opacity=".18"/>
+  <path d="M276 372h132l-10 32H286z" fill="var(--s-toast)"/>
+  <path d="M284 376h116l-7 20H291z" fill="var(--s-shroom)"/>
+  <g fill="var(--s-leaf)" opacity=".9"><circle cx="312" cy="384" r="3"/><circle cx="348" cy="380" r="3"/><circle cx="378" cy="388" r="3"/></g>
+  <g><circle cx="420" cy="410" r="16" fill="var(--s-salad)"/><circle cx="444" cy="400" r="12" fill="var(--s-leaf)"/><circle cx="432" cy="424" r="7" fill="var(--s-clay)"/><circle cx="406" cy="424" r="5" fill="var(--s-bloom)"/></g>
+
+  <!-- iced latte -->
+  <g>
+    <path d="M118 318h86l-8 150h-70z" fill="var(--s-milk)" opacity=".95"/>
+    <path d="M118 318h86l-4 74h-78z" fill="var(--s-coffee)"/>
+    <g fill="var(--s-wall)" opacity=".5"><rect x="130" y="328" width="26" height="24" rx="5" transform="rotate(-10 143 340)"/><rect x="164" y="338" width="24" height="22" rx="5" transform="rotate(14 176 349)"/><rect x="140" y="358" width="22" height="20" rx="5" transform="rotate(6 151 368)"/></g>
+    <path d="M118 318h86l-8 150h-70z" fill="none" stroke="var(--s-ink)" stroke-width="3" opacity=".35"/>
+    <ellipse cx="161" cy="318" rx="43" ry="9" fill="var(--s-coffee)"/>
+    <ellipse cx="161" cy="318" rx="43" ry="9" fill="none" stroke="var(--s-ink)" stroke-width="3" opacity=".35"/>
+  </g>
+</svg>
+        <figcaption>Mushroom toast, window seat</figcaption>
+      </figure>
+      <div class="prose">
+        <h2 class="h2" style="margin-bottom:.3em">
+          <span class="ln"><span>Breakfast</span></span>
+          <span class="ln"><span>has no closing</span></span>
+          <span class="ln"><span>time here.</span></span>
+        </h2>
+        <p data-reveal>Eggs at four in the afternoon are not a mistake, they are a decision. The kitchen runs the full menu from the moment the shutter goes up until a quarter past ten at night.</p>
+        <p data-reveal="0.05">Bread is baked in-house each morning and the pastry case is restocked once, at noon, until it is empty. Most of the menu can be made vegan; ask whoever brings your water.</p>
+        <a class="btn" href="#visit" data-magnet><span>Find the door <svg class="ast" aria-hidden="true"><use href="#ast"></use></svg></span></a>
+      </div>
+    </div>
+  </section>
+
+  <div class="tiles" aria-hidden="true"></div>
+
+  <section class="band wrap visit" id="visit">
+    <div>
+      <h2 class="h2"><span class="ln"><span>Come in.</span></span></h2>
+      <div class="addr">
+        <p class="big"><span class="placeholder">[Street address]</span><br><span class="placeholder">[Area, City — PIN]</span></p>
+        <p data-reveal>Ground floor, tiled forecourt, glass door. There is room for four outside when the evening is kind.</p>
+        <p data-reveal="0.05">
+          <span class="eyebrow" style="display:block;margin-bottom:6px">Reach us</span>
+          <span class="placeholder">[+91 00000 00000]</span> &nbsp;·&nbsp; <span class="placeholder">[hello@lighthouse.coffee]</span>
+        </p>
+        <a class="btn" href="#book" data-magnet><span>Book a table <svg class="ast" aria-hidden="true"><use href="#ast"></use></svg></span></a>
+      </div>
+    </div>
+    <div>
+      <span class="eyebrow">Hours</span>
+      <ul class="hours">
+        <li data-day="1"><span>Monday</span><span>8:00 — 23:00</span></li>
+        <li data-day="2"><span>Tuesday</span><span>8:00 — 23:00</span></li>
+        <li data-day="3"><span>Wednesday</span><span>8:00 — 23:00</span></li>
+        <li data-day="4"><span>Thursday</span><span>8:00 — 23:00</span></li>
+        <li data-day="5"><span>Friday</span><span>8:00 — 00:00</span></li>
+        <li data-day="6"><span>Saturday</span><span>8:00 — 00:00</span></li>
+        <li data-day="0"><span>Sunday</span><span>9:00 — 23:00</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="book" id="book">
+    <div class="wrap book__grid">
+      <div class="book__aside">
+        <p class="eyebrow">Reservations<svg class="ast" aria-hidden="true"><use href="#ast"></use></svg>Up to 8</p>
+        <h2 class="h2">
+          <span class="ln"><span>Keep a</span></span>
+          <span class="ln"><span>table warm.</span></span>
+        </h2>
+        <p class="book__blurb">Walk-ins always welcome &#8212; we hold a third of the room for them. For anything planned, book below and we will have the corner ready.</p>
+        <dl class="book__summary" id="bookSummary"></dl>
+        <p class="book__status" id="bookStatus">Checking the book&#8230;</p>
+      </div>
+
+      <div class="book__panel">
+        <ol class="bsteps" id="bookSteps">
+          <li class="is-on"><span>01</span> Party</li>
+          <li><span>02</span> Date</li>
+          <li><span>03</span> Time</li>
+          <li><span>04</span> Details</li>
+        </ol>
+
+        <div class="step" data-step="0">
+          <h3 class="step__h">How many of you?</h3>
+          <div class="chips chips--num" id="partyChips" role="group" aria-label="Party size"></div>
+          <p class="step__note">Nine or more is a private hire &#8212; email us and we will take the whole back room out of service for you.</p>
+        </div>
+
+        <div class="step" data-step="1" hidden>
+          <h3 class="step__h">Which day?</h3>
+          <div class="datestrip" id="dateStrip" role="group" aria-label="Choose a date"></div>
+          <p class="step__note">The book opens three weeks ahead.</p>
+        </div>
+
+        <div class="step" data-step="2" hidden>
+          <h3 class="step__h">Pick a sitting</h3>
+          <div class="slotgrid" id="slotGrid" role="group" aria-label="Available times"></div>
+          <p class="step__note" id="slotNote"></p>
+        </div>
+
+        <div class="step" data-step="3" hidden>
+          <h3 class="step__h">Who is the table for?</h3>
+          <form id="bookForm" class="bform" novalidate>
+            <label class="field"><span>Name</span><input id="bName" name="name" type="text" autocomplete="name" required></label>
+            <label class="field"><span>Phone</span><input id="bPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required></label>
+            <label class="field field--wide"><span>Email <i>optional</i></span><input id="bMail" name="email" type="email" autocomplete="email"></label>
+            <label class="field field--wide"><span>Anything we should know? <i>optional</i></span><textarea id="bNote" name="note" rows="2" placeholder="High chair, birthday, allergy, a quiet corner&#8230;"></textarea></label>
+          </form>
+        </div>
+
+        <div class="step step--done" data-step="4" hidden>
+          <p class="eyebrow">Table held</p>
+          <p class="doneref" id="doneRef">&#8212;</p>
+          <p class="doneline" id="doneLine"></p>
+          <p class="step__note">Under <strong id="doneName"></strong>. We hold the table for fifteen minutes past the hour. To change it, call us with that reference.</p>
+          <button type="button" class="linkbtn" id="bookAgain">Book another table</button>
+        </div>
+
+        <div class="book__nav">
+          <button type="button" class="ghostbtn" id="bookBack" hidden>Back</button>
+          <button type="button" class="btn" id="bookNext" data-magnet><span>Continue</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p class="foot__mark">lightHouse<svg class="ast" aria-hidden="true"><use href="#ast"></use></svg></p>
+    <div class="foot__row">
+      <span>Speciality Coffee</span>
+      <a href="#pour"><span>Brew</span><span>Brew</span></a>
+    <a href="#menu"><span>Menu</span><span>Menu</span></a>
+      <a href="#visit"><span>Visit</span><span>Visit</span></a>
+    <a href="#book"><span>Book</span><span>Book</span></a>
+      <a href="#top">Back to the top</a>
+      <span>© 2026</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
