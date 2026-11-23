@@ -98,12 +98,12 @@
       " float ang=atan(c.y,c.x)+u_time*.13+u_scroll*1.4;",
       " float beam=pow(max(0.,cos(ang)),22.)+.42*pow(max(0.,cos(ang+3.14159)),14.);",
       " float d=length(c);",
-      " beam*=smoothstep(1.5,.03,d);",
+      " beam*=1.-smoothstep(.03,1.5,d);",
       " vec3 col=u_bg;",
       " col=mix(col,u_pine,clamp(f*f*.85,0.,1.));",
       " col=mix(col,u_ember,clamp(pow(f,3.)*1.3,0.,.55));",
       " col+=u_amber*beam*(.32+.5*f);",
-      " col+=u_amber*.1*smoothstep(1.2,0.,d)*(.4+.6*f);",
+      " col+=u_amber*.1*(1.-smoothstep(0.,1.2,d))*(.4+.6*f);",
       /* vignette + subtle banding break */
       " col*=1.-.55*pow(length(uv-.5)*1.25,2.2);",
       " col+=(h(gl_FragCoord.xy+u_time)-.5)*.015;",
@@ -239,6 +239,7 @@
   var lenis = null;
   if (!reduced && window.Lenis) {
     lenis = new window.Lenis({ duration: 1.15, smoothWheel: true });
+    window.__lhLenis = lenis;
     lenis.on("scroll", function (e) { onScroll(e.scroll); if (hasGSAP) ScrollTrigger.update(); });
   } else {
     addEventListener("scroll", function () { onScroll(scrollY); }, { passive: true });
@@ -286,7 +287,8 @@
       .from(".hero__shot .art", { scale: 1.35, duration: 1.8, ease: "expo.out" }, .3)
       .from(".hero__cap > *, .hero__foot > *", { opacity: 0, y: 18, duration: .8, stagger: .07 }, .95)
       .from(".nav > *", { opacity: 0, y: -14, duration: .7, stagger: .08 }, .15)
-      .from("#progress", { opacity: 0, duration: 1 }, .6);
+      .from("#progress", { opacity: 0, duration: 1 }, .6)
+      .from(".hero__beam", { opacity: 0, duration: 2.2 }, 0);
   }
 
   if (boot) {
@@ -372,26 +374,6 @@
       vel *= .93;
     });
   });
-
-  /* ===================== the menu, read sideways ===================== */
-  var rail = document.querySelector(".menu__rail");
-  if (rail && innerWidth > 780) {
-    var dist = function () { return Math.max(0, rail.scrollWidth - innerWidth); };
-    var st = gsap.to(rail, {
-      x: function () { return -dist(); }, ease: "none",
-      scrollTrigger: {
-        trigger: ".menu", start: "top top",
-        end: function () { return "+=" + (dist() + innerHeight * .7); },
-        pin: ".menu__pin", scrub: .55, invalidateOnRefresh: true, anticipatePin: 1
-      }
-    });
-    gsap.utils.toArray(".card").forEach(function (c, i) {
-      gsap.fromTo(c, { rotateY: 16, z: -140, opacity: .25 }, {
-        rotateY: 0, z: 0, opacity: 1, ease: "none",
-        scrollTrigger: { trigger: c, containerAnimation: st, start: "left right", end: "left 58%", scrub: true }
-      });
-    });
-  }
 
   /* ===================== magnetic ===================== */
   if (fine) {

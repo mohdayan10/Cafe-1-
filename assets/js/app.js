@@ -47,13 +47,24 @@
     { c: "retail", n: "Ceramic dripper", d: "Our house cone, fired locally.", p: 1400, t: [] }
   ];
   var CATS = [
-    { k: "all", label: "Everything" }, { k: "espresso", label: "Espresso bar" },
-    { k: "brew", label: "Brew bar" }, { k: "other", label: "Not coffee" },
-    { k: "plates", label: "All-day plates" }, { k: "bakes", label: "Wholesome bakes" },
-    { k: "retail", label: "Take home" }
+    { k: "espresso", label: "Espresso bar", blurb: "Pulled on the lever, 1:2 in twenty-eight seconds. Milk steamed to order, never twice.", icon: "cup" },
+    { k: "brew", label: "Brew bar", blurb: "Brewed by hand, one cup at a time. Ask what landed this week and we will talk you through it.", icon: "cone" },
+    { k: "other", label: "Not coffee", blurb: "For the other half of the table. Whisked, boiled or pressed, all made the long way.", icon: "leaf" },
+    { k: "plates", label: "All-day plates", blurb: "Breakfast has no closing time here. Full menu from the shutter going up until quarter past ten.", icon: "plate" },
+    { k: "bakes", label: "Wholesome bakes", blurb: "Out of the oven at seven, restocked once at noon, gone when they are gone.", icon: "bake" },
+    { k: "retail", label: "Take home", blurb: "Roasted Tuesday, ground to your brewer, or the kit to do it properly yourself.", icon: "bag" }
   ];
   var DIETS = [{ k: "vg", label: "Vegan" }, { k: "v", label: "Vegetarian" }, { k: "gf", label: "Gluten free" }];
   var TAGNAME = { v: "Veg", vg: "Vegan", gf: "GF", n: "Nuts" };
+
+  var ICONS = {
+    cup: '<path d="M5 9h12v5a6 6 0 0 1-12 0z"/><path d="M17 10h2.5a2.5 2.5 0 0 1 0 5H17"/><path d="M7 5.5V3M11 5.5V3M15 5.5V3"/><path d="M3 21h16"/>',
+    cone: '<path d="M4 6h16l-6 9h-4z"/><path d="M12 15v4"/><path d="M8 21h8"/><path d="M4 6c3 1.6 13 1.6 16 0"/>',
+    leaf: '<path d="M20 4c0 9-5 14-12 14H5c0-8 6-13 15-14z"/><path d="M4 21c2-5 5-8 9-10"/>',
+    plate: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5"/>',
+    bake: '<path d="M3 15c3-7 15-7 18 0-3 3-15 3-18 0z"/><path d="M8 13.4 6.5 8M12 12.8V7M16 13.4 17.5 8"/>',
+    bag: '<path d="M6 8h12l-1.2 12H7.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M6 11h12"/>'
+  };
 
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var el = function (tag, cls, html) {
@@ -64,106 +75,146 @@
   };
   var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); };
 
-  /* ============================================================ MENU UI */
+  /* ============================================================ MENU: THE SIDEWAYS RAIL */
   (function menu() {
-    var grid = $("#menuGrid"), cats = $("#catChips"), diets = $("#dietChips"),
-        search = $("#menuSearch"), count = $("#menuCount"), empty = $("#menuEmpty");
-    if (!grid) return;
-    var state = { cat: "all", diet: [], q: "" };
+    var rail = $("#menuRail"), nav = $("#menuNav");
+    if (!rail) return;
+    var pad = function (n) { return String(n).padStart(2, "0"); };
+    var panels = [];
 
-    CATS.forEach(function (c) {
-      var b = el("button", "chip" + (c.k === "all" ? " is-on" : ""), esc(c.label));
-      b.type = "button"; b.dataset.cat = c.k;
-      b.addEventListener("click", function () {
-        state.cat = c.k;
-        cats.querySelectorAll(".chip").forEach(function (x) { x.classList.toggle("is-on", x === b); });
-        render();
-      });
-      cats.appendChild(b);
-    });
-    DIETS.forEach(function (d) {
-      var b = el("button", "chip chip--diet", esc(d.label));
-      b.type = "button"; b.dataset.diet = d.k;
-      b.addEventListener("click", function () {
-        var i = state.diet.indexOf(d.k);
-        if (i > -1) state.diet.splice(i, 1); else state.diet.push(d.k);
-        b.classList.toggle("is-on");
-        render();
-      });
-      diets.appendChild(b);
-    });
-    if (search) search.addEventListener("input", function () { state.q = search.value.trim().toLowerCase(); render(); });
-    var clear = $("#clearFilters");
-    if (clear) clear.addEventListener("click", function () {
-      state = { cat: "all", diet: [], q: "" };
-      if (search) search.value = "";
-      cats.querySelectorAll(".chip").forEach(function (x) { x.classList.toggle("is-on", x.dataset.cat === "all"); });
-      diets.querySelectorAll(".chip").forEach(function (x) { x.classList.remove("is-on"); });
-      render();
+    CATS.forEach(function (c, i) {
+      var items = MENU.filter(function (m) { return m.c === c.k; });
+      var lis = items.map(function (it) {
+        var badge = it.s ? '<span class="badge badge--star">House</span>'
+                  : it.t.indexOf("vg") > -1 ? '<span class="badge">Vegan</span>'
+                  : it.t.indexOf("v") > -1 ? '<span class="badge">Veg</span>' : "";
+        return '<li><div class="row"><b>' + esc(it.n) + "</b>" + badge +
+               '<i class="lead"></i><span class="p">₹' + it.p + "</span></div>" +
+               '<p class="row__d">' + esc(it.d) + "</p></li>";
+      }).join("");
+
+      var p = el("article", "panel",
+        '<span class="panel__no" aria-hidden="true">' + pad(i + 1) + "</span>" +
+        '<p class="panel__k">' + pad(i + 1) + " &mdash; " + esc(c.label) + "</p>" +
+        '<svg class="panel__icon" viewBox="0 0 24 24" aria-hidden="true">' + ICONS[c.icon] + "</svg>" +
+        "<h3>" + esc(c.label) + "</h3>" +
+        '<p class="panel__d">' + esc(c.blurb) + "</p>" +
+        '<ul class="panel__list">' + lis + "</ul>");
+      p.id = "sec-" + c.k;
+      rail.appendChild(p);
+      panels.push(p);
+
+      var a = el("a", "menunav__a", esc(c.label));
+      a.href = "#sec-" + c.k;
+      a.dataset.sec = c.k;
+      nav.appendChild(a);
     });
 
-    function match(it) {
-      if (state.cat !== "all" && it.c !== state.cat) return false;
-      for (var i = 0; i < state.diet.length; i++) {
-        var d = state.diet[i];
-        if (d === "v" ? !(it.t.indexOf("v") > -1 || it.t.indexOf("vg") > -1) : it.t.indexOf(d) < 0) return false;
+    var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var wide = innerWidth > 820 && !reduced;
+    var st = null;
+
+    function mark(i) {
+      nav.querySelectorAll(".menunav__a").forEach(function (a, n) { a.classList.toggle("is-on", n === i); });
+      var on = nav.children[i];
+      if (on && nav.scrollWidth > nav.clientWidth) {
+        nav.scrollTo({ left: on.offsetLeft - nav.clientWidth / 2 + on.offsetWidth / 2, behavior: "smooth" });
       }
-      if (state.q && (it.n + " " + it.d).toLowerCase().indexOf(state.q) < 0) return false;
-      return true;
     }
 
-    function card(it) {
-      var tags = it.t.map(function (t) { return '<span class="tag">' + TAGNAME[t] + "</span>"; }).join("");
-      var e = el("article", "item" + (it.s ? " item--star" : ""),
-        '<div class="item__top"><h3>' + esc(it.n) + "</h3><span class=\"item__p\">" + it.p + "</span></div>" +
-        '<p class="item__d">' + esc(it.d) + "</p>" +
-        '<div class="item__tags">' + tags + (it.s ? '<span class="tag tag--star">Signature</span>' : "") + "</div>");
-      e.dataset.key = it.n;
-      return e;
-    }
-
-    var first = true;
-    function render() {
-      /* FLIP: measure, mutate, invert, play */
-      var before = {};
-      if (!first) grid.querySelectorAll(".item").forEach(function (n) { before[n.dataset.key] = n.getBoundingClientRect(); });
-
-      var list = MENU.filter(match);
-      grid.textContent = "";
-      var byCat = {};
-      list.forEach(function (it) { (byCat[it.c] = byCat[it.c] || []).push(it); });
-      CATS.forEach(function (c) {
-        if (c.k === "all" || !byCat[c.k]) return;
-        var g = el("div", "group");
-        g.appendChild(el("h4", "group__h", esc(c.label) + '<span>' + byCat[c.k].length + "</span>"));
-        var inner = el("div", "group__items");
-        byCat[c.k].forEach(function (it) { inner.appendChild(card(it)); });
-        g.appendChild(inner);
-        grid.appendChild(g);
-      });
-
-      if (count) count.textContent = list.length;
-      if (empty) empty.hidden = list.length > 0;
-
-      if (!first && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        grid.querySelectorAll(".item").forEach(function (n, i) {
-          var b = before[n.dataset.key], a = n.getBoundingClientRect();
-          if (b) {
-            var dx = b.left - a.left, dy = b.top - a.top;
-            if (dx || dy) {
-              n.animate([{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "none" }],
-                { duration: 480, easing: "cubic-bezier(.2,.8,.2,1)" });
-            }
-          } else {
-            n.animate([{ opacity: 0, transform: "translateY(18px) scale(.97)" }, { opacity: 1, transform: "none" }],
-              { duration: 460, delay: Math.min(i * 22, 260), easing: "cubic-bezier(.2,.8,.2,1)", fill: "backwards" });
+    if (wide && window.gsap && window.ScrollTrigger) {
+      var dist = function () { return Math.max(1, rail.scrollWidth - innerWidth); };
+      var tw = gsap.to(rail, {
+        x: function () { return -dist(); }, ease: "none",
+        scrollTrigger: {
+          trigger: ".menu", start: "top top",
+          end: function () { return "+=" + (dist() + innerHeight * .8); },
+          pin: ".menu__pin", scrub: .6, anticipatePin: 1, invalidateOnRefresh: true,
+          onUpdate: function (self) {
+            var x = self.progress * dist(), centre = x + innerWidth / 2, best = 0, bd = 1e9;
+            panels.forEach(function (p, n) {
+              var c = p.offsetLeft + p.offsetWidth / 2, d = Math.abs(c - centre);
+              if (d < bd) { bd = d; best = n; }
+            });
+            mark(best);
           }
+        }
+      });
+      st = tw.scrollTrigger;
+
+      /* panels lean in as they come across */
+      panels.forEach(function (p) {
+        gsap.fromTo(p, { rotateY: 13, scale: .93, opacity: .3 }, {
+          rotateY: 0, scale: 1, opacity: 1, ease: "none",
+          scrollTrigger: { trigger: p, containerAnimation: tw, start: "left right", end: "left 62%", scrub: true }
         });
-      }
-      first = false;
-      if (window.ScrollTrigger) ScrollTrigger.refresh();
+        gsap.fromTo(p.querySelector(".panel__no"), { y: 40 }, {
+          y: -40, ease: "none",
+          scrollTrigger: { trigger: p, containerAnimation: tw, start: "left right", end: "right left", scrub: true }
+        });
+      });
+
+      nav.addEventListener("click", function (ev) {
+        var a = ev.target.closest(".menunav__a");
+        if (!a) return;
+        ev.preventDefault();
+        var p = document.getElementById("sec-" + a.dataset.sec);
+        if (!p || !st) return;
+        var want = Math.min(1, Math.max(0, (p.offsetLeft - 40) / dist()));
+        var to = st.start + want * (st.end - st.start);
+        if (window.__lhLenis) window.__lhLenis.scrollTo(to, { duration: 1.3 });
+        else window.scrollTo({ top: to, behavior: "smooth" });
+      });
+    } else {
+      /* narrow screens, or reduced motion: the rail is just a swipeable strip */
+      rail.classList.add("is-swipe");
+      nav.addEventListener("click", function (ev) {
+        var a = ev.target.closest(".menunav__a");
+        if (!a) return;
+        ev.preventDefault();
+        var p = document.getElementById("sec-" + a.dataset.sec);
+        if (p) rail.scrollTo({ left: p.offsetLeft - 20, behavior: reduced ? "auto" : "smooth" });
+      });
+      var t = false;
+      rail.addEventListener("scroll", function () {
+        if (t) return;
+        t = true;
+        requestAnimationFrame(function () {
+          var centre = rail.scrollLeft + rail.clientWidth / 2, best = 0, bd = 1e9;
+          panels.forEach(function (p, n) {
+            var c = p.offsetLeft + p.offsetWidth / 2, d = Math.abs(c - centre);
+            if (d < bd) { bd = d; best = n; }
+          });
+          mark(best); t = false;
+        });
+      }, { passive: true });
     }
-    render();
+    mark(0);
+  })();
+
+  /* ============================================================ FLOATING BOOK BUTTON */
+  (function fab() {
+    var fab = document.querySelector(".fab");
+    if (!fab) return;
+    var hero = document.querySelector(".hero"), book = document.getElementById("book");
+    function place() {
+      var pastHero = hero ? hero.getBoundingClientRect().bottom < 90 : scrollY > 400;
+      var atBook = false;
+      if (book) {
+        var r = book.getBoundingClientRect();
+        atBook = r.top < innerHeight * .75 && r.bottom > 120;
+      }
+      fab.classList.toggle("is-out", !pastHero || atBook);
+    }
+    place();
+    addEventListener("scroll", place, { passive: true });
+    addEventListener("resize", place);
+    fab.addEventListener("click", function (ev) {
+      if (!book) return;
+      ev.preventDefault();
+      if (window.__lhLenis) window.__lhLenis.scrollTo(book, { offset: -70, duration: 1.4 });
+      else book.scrollIntoView({ behavior: "smooth" });
+    });
   })();
 
   /* ============================================================ STORAGE */
