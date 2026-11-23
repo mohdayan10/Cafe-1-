@@ -1,0 +1,16 @@
+# Deploy the site together with its booking service.
+#   render.com -> New -> Blueprint -> point at this repo
+services:
+  - type: web
+    name: lighthouse-cafe
+    runtime: python
+    plan: free
+    buildCommand: ""
+    startCommand: python3 server.py
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+    disk:
+      name: bookings
+      mountPath: /opt/render/project/src
+      sizeGB: 1

@@ -59,6 +59,19 @@ GSAP + ScrollTrigger with Lenis for smooth scrolling, three.js for the backgroun
 plain Canvas 2D for dust and steam. Every effect is behind a capability check, and
 `prefers-reduced-motion` turns all of it off.
 
+## Hosting
+
+**GitHub Pages** (static site, no booking service). Push to `main` and the workflow in
+`.github/workflows/pages.yml` publishes the repo. One switch is needed first:
+*Settings -> Pages -> Build and deployment -> Source: **GitHub Actions***. The site then lands at
+`https://<user>.github.io/<repo>/`. Everything but reservations works; with no API to reach, the
+booking panel says so and keeps bookings in the visitor's own browser.
+
+**Render** (site + working reservations). *New -> Blueprint* pointed at this repo reads
+`render.yaml`: it runs `python3 server.py` with `HOST=0.0.0.0`, serves the same pages and keeps
+`bookings.db` on a mounted disk. Any host that runs Python works the same way — the server reads
+`PORT` and `HOST` from the environment, and needs no packages.
+
 ## Still to fill in
 
 Address, phone and email in the Visit section are placeholders, marked in dashed terracotta.

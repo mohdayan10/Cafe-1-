@@ -11,6 +11,7 @@ Serves the site and a small reservations service backed by SQLite (bookings.db).
     GET  /api/bookings?date=YYYY-MM-DD       -> the day's book, for the counter
 """
 import json
+import os
 import re
 import sqlite3
 import sys
@@ -137,7 +138,8 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "127.0.0.1")   # a platform wants 0.0.0.0
     db().close()
-    print("lightHouse*  http://localhost:%d   (bookings -> %s)" % (port, DB.name), flush=True)
-    ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()
+    print("lightHouse*  http://%s:%d   (bookings -> %s)" % (host, port, DB.name), flush=True)
+    ThreadingHTTPServer((host, port), Handler).serve_forever()
