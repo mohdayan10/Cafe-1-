@@ -13,10 +13,11 @@
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function read(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function isDark() {
-    var a = root.getAttribute("data-theme");
+    var a = root.getAttribute("data-mode") || root.getAttribute("data-theme");
     return a ? a === "dark" : !matchMedia("(prefers-color-scheme: light)").matches;
   }
   function paint(mode) {
+    root.setAttribute("data-mode", mode);
     root.setAttribute("data-theme", mode);
     if (lamp) {
       lamp.setAttribute("aria-pressed", String(mode === "dark"));
@@ -489,7 +490,7 @@
     var tl = gsap.timeline({
       defaults: { ease: "none" },
       scrollTrigger: {
-        trigger: sec, start: "top top", end: "+=2800", pin: ".pour__pin",
+        trigger: sec, start: "top top", end: "+=1700", pin: ".pour__pin",
         scrub: .7, anticipatePin: 1, invalidateOnRefresh: true,
         onUpdate: function (self) { report(self.progress); }
       }
@@ -547,4 +548,6 @@
   });
 
   addEventListener("load", function () { ScrollTrigger.refresh(); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { ScrollTrigger.refresh(); });
+  setTimeout(function () { ScrollTrigger.refresh(); }, 1200);
 })();

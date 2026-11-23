@@ -17,7 +17,7 @@
   --glass:rgba(239,233,222,.04);
   --shadow:0 50px 110px -60px #000;
   --blend:screen;
-  --tile-flip:invert(1); --gl-op:.92;
+  --tile-flip:invert(1); --gl-op:1;
   color-scheme:dark;
 
   /* scenes */
@@ -77,6 +77,64 @@
   --s-steel:#8E959B; --s-steel-2:#6E767D; --s-water:#86B3CC; --s-crema:#C98F4E;
   --s-dripper:#F4F0E7; --s-dripper-2:#CFC8B9;
   color-scheme:light;
+}
+
+:root[data-mode="light"]{
+  --bg:#E7E7E1; --bg-2:#DEDED7; --bg-3:#D5D5CD; --ink:#0B0E12; --ink-soft:#5C6269;
+  --amber:#B8721A; --ember:#C14A24; --pine:#1F574A;
+  --line:rgba(11,14,18,.18); --line-2:rgba(11,14,18,.09); --glass:rgba(11,14,18,.03);
+  --shadow:0 40px 90px -60px rgba(11,14,18,.6); --blend:multiply; --tile-flip:none; --gl-op:.3;
+  --s-wall:#DCDCD4; --s-wall-2:#CFCFC6; --s-sign:#3A2A1E; --s-slat:#5C4532;
+  --s-wood:#6B4A32; --s-wood-2:#8A6142; --s-glass:#23272B; --s-glassglow:#B9B29F;
+  --s-green:#3C5A48; --s-clay:#B65A38; --s-pot:#C9C6BC; --s-blush:#DD9A88;
+  --s-floor-a:#F2F2EE; --s-floor-b:#14171A; --s-stone:#D7D7CE; --s-sky:#BCCFC6;
+  --s-glow:#D08A1E; --s-leaf:#3A5A44; --s-ink:#14171A; --s-sill:#60706C; --s-brass:#9A7A38;
+  --s-plate:#E2E2DA; --s-toast:#C99347; --s-shroom:#6E4A2C; --s-salad:#5F874E;
+  --s-milk:#FBF6EC; --s-coffee:#5A3722; --s-bloom:#D9B32A; --s-decal:#EDE7DA;
+  --s-steel:#8E959B; --s-steel-2:#6E767D; --s-water:#86B3CC; --s-crema:#C98F4E;
+  --s-dripper:#F4F0E7; --s-dripper-2:#CFC8B9;
+  color-scheme:light;
+}
+:root[data-mode="dark"]{
+  /* night, chosen explicitly */
+  --bg:#080A0D;
+  --bg-2:#0E1217;
+  --bg-3:#141A20;
+  --ink:#EFE9DE;
+  --ink-soft:#8E9199;
+  --amber:#FFB04A;
+  --ember:#E2663C;
+  --pine:#2E7A68;
+  --line:rgba(239,233,222,.14);
+  --line-2:rgba(239,233,222,.07);
+  --glass:rgba(239,233,222,.04);
+  --shadow:0 50px 110px -60px #000;
+  --blend:screen;
+  --tile-flip:invert(1); --gl-op:1;
+  color-scheme:dark;
+
+  /* scenes */
+  --s-wall:#121820; --s-wall-2:#0C1016; --s-sign:#0A0D11; --s-slat:#243040;
+  --s-wood:#33231A; --s-wood-2:#483324; --s-glass:#FFC271; --s-glassglow:#FFE2AE;
+  --s-green:#1E3F39; --s-clay:#A4482C; --s-pot:#2A2A2A; --s-blush:#8C4B41;
+  --s-floor-a:#1A2028; --s-floor-b:#05070A; --s-stone:#191F26; --s-sky:#0B1418;
+  --s-glow:#FFB04A; --s-leaf:#24473C; --s-ink:#05070A; --s-sill:#1D262B; --s-brass:#A07B36;
+  --s-plate:#2B3139; --s-toast:#A3762F; --s-shroom:#5A3B22; --s-salad:#3E6236;
+  --s-milk:#F6EDDC; --s-coffee:#43291A; --s-bloom:#E0B32B; --s-decal:#FFD9A0;
+  --s-steel:#5A6168; --s-steel-2:#424950; --s-water:#9FC4D6; --s-crema:#C98F4E;
+  --s-dripper:#E8E2D6; --s-dripper-2:#C9C2B4;
+
+  --ff-display:"Fraunces","Cormorant Garamond",Georgia,serif;
+  --ff-ui:"Jost","Avenir Next",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ff-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --step--1:clamp(.76rem,.72rem + .2vw,.86rem);
+  --step-0:clamp(1rem,.95rem + .25vw,1.1rem);
+  --step-1:clamp(1.22rem,1.08rem + .7vw,1.58rem);
+  --step-2:clamp(1.7rem,1.4rem + 1.5vw,2.6rem);
+  --step-3:clamp(2.3rem,1.7rem + 3vw,4.3rem);
+  --step-4:clamp(3.2rem,1.8rem + 7.4vw,9.4rem);
+  --rail:clamp(20px,5vw,92px);
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -219,7 +277,7 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 @keyframes cue{0%{transform:translateX(-100%)}60%,100%{transform:translateX(100%)}}
 
 /* ---------- marquee ---------- */
-.marquee{overflow:hidden; border-block:1px solid var(--line-2); background:var(--bg-2); padding-block:clamp(12px,1.6vw,20px)}
+.marquee{overflow:hidden; border-block:1px solid var(--line-2); background:color-mix(in srgb,var(--bg-2) 72%,transparent); padding-block:clamp(12px,1.6vw,20px)}
 .marquee__track{display:flex; width:max-content; will-change:transform}
 .marquee__track span{display:inline-flex; align-items:center; gap:clamp(18px,3vw,44px); padding-right:clamp(18px,3vw,44px);
   font-family:var(--ff-display); font-size:clamp(1.5rem,4.2vw,3rem); white-space:nowrap; letter-spacing:-.02em}
@@ -255,12 +313,12 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
   will-change:background-position}
 
 /* ---------- menu: tall panels dragged sideways ---------- */
-.menu{position:relative; border-block:1px solid var(--line-2); background:var(--bg-2)}
+.menu{position:relative; border-block:1px solid var(--line-2); background:color-mix(in srgb,var(--bg-2) 70%,transparent)}
 .menu::before{content:""; position:absolute; inset:0; pointer-events:none; opacity:.22; filter:var(--tile-flip);
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='88' height='88'><rect width='88' height='88' fill='%23F7F4EF'/><rect x='14' y='14' width='34' height='34' fill='%2320201E'/></svg>");
   background-size:88px 88px}
 .menu__pin{position:relative; min-height:100svh; display:flex; flex-direction:column; justify-content:center;
-  gap:clamp(14px,2vw,24px); padding-block:clamp(44px,6vw,72px); overflow:hidden}
+  gap:clamp(14px,2vw,24px); padding-block:clamp(96px,13vh,140px) clamp(40px,5vw,64px); overflow:hidden}
 .menu__head{display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 28px}
 .menu__title{display:flex; flex-direction:column; gap:10px}
 .eyebrow .sq{display:inline-block; width:7px; height:7px; background:var(--amber); margin-right:4px; vertical-align:middle}
@@ -283,7 +341,7 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .menu__rail.is-swipe .panel{scroll-snap-align:center}
 
 .panel{position:relative; flex:0 0 auto; width:min(86vw,430px); display:flex; flex-direction:column; gap:12px;
-  background:var(--bg-3); border:1px solid var(--line-2); border-radius:3px; overflow:hidden;
+  background:color-mix(in srgb,var(--bg-3) 94%,transparent); backdrop-filter:blur(6px); border:1px solid var(--line-2); border-radius:3px; overflow:hidden;
   padding:clamp(22px,2.6vw,34px); box-shadow:var(--shadow); transform-style:preserve-3d; will-change:transform}
 .panel__no{position:absolute; top:clamp(10px,1.6vw,20px); right:clamp(16px,2vw,26px); font-family:var(--ff-display);
   font-size:clamp(3.4rem,5vw,5rem); line-height:1; color:var(--ink); opacity:.07; pointer-events:none}
@@ -310,12 +368,14 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 
 /* ---------- the pour ---------- */
 .pour{position:relative; background:
-  radial-gradient(90% 70% at 70% 40%,color-mix(in srgb,var(--amber) 9%,transparent),transparent 70%),var(--bg-2);
+  radial-gradient(90% 70% at 70% 40%,color-mix(in srgb,var(--amber) 12%,transparent),transparent 70%),color-mix(in srgb,var(--bg-2) 62%,transparent);
   border-block:1px solid var(--line-2)}
-.pour__pin{min-height:100svh; display:flex; align-items:center; padding-block:clamp(50px,7vw,80px); overflow:hidden}
-.pour__grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.86fr); gap:clamp(24px,5vw,70px); align-items:center; width:100%}
+.pour__pin{min-height:100svh; display:flex; align-items:center; overflow:hidden;
+  padding-block:clamp(104px,15vh,160px) clamp(44px,6vw,72px)}
+.pour__grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.95fr); gap:clamp(24px,5vw,70px); align-items:center; width:100%}
 @media (max-width:900px){.pour__grid{grid-template-columns:1fr; gap:24px}}
-.pour__copy{display:flex; flex-direction:column; gap:clamp(16px,2vw,26px)}
+.pour__copy{display:flex; flex-direction:column; gap:clamp(12px,1.6vw,22px); min-width:0}
+.pour .h2{font-size:clamp(1.9rem,1.4rem + 2.2vw,3.2rem)}
 .pour__stage-label{font-family:var(--ff-mono); font-size:var(--step--1); letter-spacing:.24em; text-transform:uppercase; color:var(--amber); min-height:1.4em}
 .pour__stage-label span{display:inline-block}
 .pour__hint{font-family:var(--ff-mono); font-size:var(--step--1); letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft)}
@@ -324,8 +384,8 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .recipe dt{font-family:var(--ff-mono); font-size:var(--step--1); letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft)}
 .recipe dd{margin:0; font-family:var(--ff-display); font-size:var(--step-2); line-height:1; font-variant-numeric:tabular-nums}
 @media (max-width:540px){.recipe{grid-template-columns:repeat(2,1fr)}}
-.pour__stage{position:relative; justify-self:center; width:min(100%,460px); display:flex; justify-content:center}
-.rig{display:block; height:min(66svh,620px); width:auto; max-width:100%; margin-inline:auto; overflow:visible}
+.pour__stage{position:relative; justify-self:center; width:min(100%,520px); display:flex; justify-content:center}
+.rig{display:block; height:min(74svh,660px); width:auto; max-width:100%; margin-inline:auto; overflow:visible}
 @media (max-width:900px){.rig{height:min(44svh,420px)}}
 .steam{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; mix-blend-mode:screen; opacity:0}
 :root[data-theme="light"] .steam{mix-blend-mode:multiply}
@@ -356,7 +416,7 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .btn .ast{width:1em; height:1em}
 
 /* ---------- footer ---------- */
-.foot{background:var(--bg-2); color:var(--ink); overflow:clip; border-top:1px solid var(--line-2)}
+.foot{background:color-mix(in srgb,var(--bg-2) 74%,transparent); color:var(--ink); overflow:clip; border-top:1px solid var(--line-2)}
 .foot__mark{font-family:var(--ff-display); font-size:clamp(3.2rem,17vw,16rem); line-height:.8; letter-spacing:-.04em;
   display:flex; align-items:flex-start; justify-content:center; gap:.02em; padding-top:clamp(26px,4vw,52px);
   color:var(--ink); will-change:transform,background-position}
